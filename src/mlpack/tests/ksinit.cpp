@@ -34,7 +34,7 @@ using namespace mlpack::optimization;
 BOOST_AUTO_TEST_SUITE(KSInit);
 
 /**
- * Train and evaluate a vanilla network with the specified structure.
+ * Train and evaluate a vanilla network with the specified initialisation procedure.
  */
 template<
     typename PerformanceFunction,
@@ -111,6 +111,7 @@ void BuildVanillaNetwork(MatType& trainData,
   squarederror = arma::pow((prediction*1.0 - testLabels), 2);
   testError = arma::sum(arma::sum(squarederror)) / testData.n_cols;
 
+  std::cout << trainError << " " << testError << std::endl;
 
 }
 
@@ -119,14 +120,20 @@ BOOST_AUTO_TEST_CASE(IrisDataset)
 {
    arma::mat trainData, testData, testLabels, trainLabels;
 
+   //Load datasets.
    data::Load("iris_train.csv", trainData, true);
    data::Load("iris_train_labels.csv", trainLabels, true);
    data::Load("iris_test.csv", testData, true);
    data::Load("iris_test_labels.csv", testLabels, true);
 
+   double trainError, testError;
+
+
+   //Add bias row.
    arma::mat biasedTrainData(1, trainData.n_cols);
    arma::mat biasedTestData(1, testData.n_cols);
 
+   //Bias row set to ones. As mentioned in the paper.
    biasedTestData.ones();
    biasedTrainData.ones();
 
@@ -137,7 +144,7 @@ BOOST_AUTO_TEST_CASE(IrisDataset)
     BuildVanillaNetwork<LogisticFunction,
                       MulticlassClassificationLayer,
                       MeanSquaredErrorFunction>
-      (biasedTrainData, trainLabels, biasedTestData, testLabels, 3, 62, 0.4);
+      (biasedTrainData, trainLabels, biasedTestData, testLabels, 3, 62, trainError, testError);
   
 
 
